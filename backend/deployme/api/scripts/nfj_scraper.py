@@ -1,18 +1,16 @@
-from base_scraper import BaseScraper
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
+from base_scraper import *
+
 
 
 class NFJScraper(BaseScraper):
-    __url = "https://nofluffjobs.com/pl/?criteria=seniority%3Dtrainee,junior"
     all_offers = []
     seen_urls = set()
 
-    def scrape(self, scrape_intervals=3):
+    def scrape(self, seniority, scrape_iterations=3):
+        url = f"https://nofluffjobs.com/pl/?criteria=seniority%3D{seniority}"
+
         try:
-            self.driver.get(self.__url)
+            self.driver.get(url)
 
             # Accept cookies if they appear
             try:
@@ -23,7 +21,7 @@ class NFJScraper(BaseScraper):
             except:
                 pass
 
-            for _ in range(scrape_intervals):
+            for _ in range(scrape_iterations):
                 # Load more offers
                 for _ in range(3):
                     try:
@@ -43,9 +41,9 @@ class NFJScraper(BaseScraper):
                 offers = self.driver.find_elements(By.CSS_SELECTOR, "a.posting-list-item")
                 for offer in offers:
                     try:
-                        url = offer.get_attribute("href")
-                        if url not in self.seen_urls:
-                            self.seen_urls.add(url)
+                        offer_url = offer.get_attribute("href")
+                        if offer_url not in self.seen_urls:
+                            self.seen_urls.add(offer_url)
                             title = offer.find_element(By.CSS_SELECTOR, "h3.posting-title__position").text
                             company = offer.find_element(By.CSS_SELECTOR, "h4.company-name").text
 
@@ -69,7 +67,8 @@ class NFJScraper(BaseScraper):
                             cleaned_title = title.replace("NOWA", "").strip() if title.endswith("NOWA") else title
 
                             self.all_offers.append({
-                                "url": url,
+                                'seniority': seniority,
+                                "url": offer_url,
                                 "title": cleaned_title,
                                 "company": company,
                                 "salary": salary,

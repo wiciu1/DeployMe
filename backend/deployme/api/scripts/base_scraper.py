@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 from selenium import webdriver
 
 class BaseScraper(ABC):
@@ -13,7 +17,7 @@ class BaseScraper(ABC):
         self.driver = webdriver.Chrome(options=self.options)
 
     @abstractmethod
-    def scrape(self):
+    def scrape(self, seniority='junior', scrape_iterations=1):
         pass
 
     def quit(self):
