@@ -9,7 +9,7 @@ class SJScraper(BaseScraper):
         offers_data = []
 
         seniority_map = {
-            'trainee': 'Staz',
+            'trainee': 'Staż',
             'junior': 'Junior'
         }
         normalized_seniority = seniority_map.get(seniority, seniority)
