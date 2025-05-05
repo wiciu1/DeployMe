@@ -20,6 +20,12 @@ class BaseScraper(ABC):
     def scrape(self, seniority='junior', scrape_iterations=1):
         pass
 
+    def scroll_page(self, container=None, pixels=1000):
+        if container:
+            self.driver.execute_script("arguments[0].scrollTop += arguments[1];", container, pixels)
+        else:
+            self.driver.execute_script("window.scrollBy(0, arguments[0]);", pixels)
+
     def quit(self):
         self.driver.quit()
 

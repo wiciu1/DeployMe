@@ -23,7 +23,7 @@ class SJScraper(BaseScraper):
             )
 
             for _ in range(scrape_iterations):
-                self.driver.execute_script("arguments[0].scrollTop += 1000", scroll_container)
+                self.scroll_page(scroll_container, 1000);
                 time.sleep(1)
 
             offers = self.driver.find_elements(By.CSS_SELECTOR, "sj-offer-list-item")
