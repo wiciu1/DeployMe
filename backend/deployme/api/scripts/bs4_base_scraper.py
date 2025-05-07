@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from bs4 import BeautifulSoup
-import requests
+import requests_test
 
 class BS4BaseScraper(ABC):
     def __init__(self, headers=None):

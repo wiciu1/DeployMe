@@ -1,7 +1,5 @@
 from base_scraper import *
 
-
-
 class NFJScraper(BaseScraper):
     all_offers = []
     seen_urls = set()
@@ -78,5 +76,5 @@ class NFJScraper(BaseScraper):
                     except:
                         continue
         finally:
-            self.quit()
+            pass
         return self.all_offers

@@ -31,3 +31,7 @@ class ScraperManager:
             except Exception as e:
                 print(f'[Error] Scraping {scraper_name}: {str(e)}')
         return all_offers
+
+    def close_all(self):
+        for scraper in self.__scrapers.values():
+            scraper.quit()

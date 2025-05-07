@@ -4,6 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class SJScraper(BaseScraper):
     url = 'https://solid.jobs/offers/it/'
+    seen_urls = set()
 
     def scrape(self, seniority='junior', scrape_iterations=1):
         offers_data = []
@@ -30,31 +31,32 @@ class SJScraper(BaseScraper):
             for offer in offers:
                 try:
                     offer_url = offer.find_element(By.CSS_SELECTOR, "a.card.py-2").get_attribute('href')
-                    title = offer.find_element(By.CSS_SELECTOR, "h2 a").text.strip()
+                    if offer_url not in self.seen_urls:
+                        self.seen_urls.add(offer_url)
+                        title = offer.find_element(By.CSS_SELECTOR, "h2 a").text.strip()
 
-                    company = offer.find_element(By.XPATH, "//a[@mattooltip='Kliknij, aby zobaczy pozostałe oferty firmy.']").find_element(By.CSS_SELECTOR, "span").text
-                    location = offer.find_element(By.XPATH, "//span[@mattooltip='Kliknij, aby zobaczyć inne oferty z okolicy.']").text.split(',')[-1].strip()
-                    salary = offer.find_element(By.CSS_SELECTOR, "sj-salary-display").text.strip()
-                    technologies = [
-                        tech.text.strip('#')
-                        for tech in offer.find_elements(By.CSS_SELECTOR, "solidjobs-skill-display")
-                    ]
+                        company = offer.find_element(By.XPATH, "//a[@mattooltip='Kliknij, aby zobaczy pozostałe oferty firmy.']").find_element(By.CSS_SELECTOR, "span").text
+                        location = offer.find_element(By.XPATH, "//span[@mattooltip='Kliknij, aby zobaczyć inne oferty z okolicy.']").text.split(',')[-1].strip()
+                        salary = offer.find_element(By.CSS_SELECTOR, "sj-salary-display").text.strip()
+                        technologies = [
+                            tech.text.strip('#')
+                            for tech in offer.find_elements(By.CSS_SELECTOR, "solidjobs-skill-display")
+                        ]
 
-                    print(offer_url, title, company, location, salary, technologies)
+                        print(offer_url, title, company, location, salary, technologies)
 
-                    offers_data.append({
-                        'url': offer_url,
-                        'title': title,
-                        'company': company,
-                        'location': location,
-                        'salary': salary,
-                        'technologies': technologies
-                    })
+                        offers_data.append({
+                            'url': offer_url,
+                            'title': title,
+                            'company': company,
+                            'location': location,
+                            'salary': salary,
+                            'technologies': technologies
+                        })
 
                 except Exception as e:
                     print(f"[Error] during parsing data {e}")
 
         finally:
-            self.quit()
-
+            pass
         return offers_data
