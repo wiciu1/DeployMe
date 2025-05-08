@@ -1,12 +1,12 @@
 from base_scraper import *
 
 class NFJScraper(BaseScraper):
-    all_offers = []
-    seen_urls = set()
+    def __init__(self, env):
+        super().__init__(env)
+        self.__url = f"https://nofluffjobs.com/pl/?criteria=seniority%3D"
 
-    def scrape(self, seniority, scrape_iterations=3):
-        url = f"https://nofluffjobs.com/pl/?criteria=seniority%3D{seniority}"
-
+    def scrape(self, seniority='junior', scrape_iterations=1):
+        url = self.__url + seniority
         try:
             self.driver.get(url)
 
@@ -40,41 +40,41 @@ class NFJScraper(BaseScraper):
                 for offer in offers:
                     try:
                         offer_url = offer.get_attribute("href")
-                        if offer_url not in self.seen_urls:
-                            self.seen_urls.add(offer_url)
-                            title = offer.find_element(By.CSS_SELECTOR, "h3.posting-title__position").text
-                            company = offer.find_element(By.CSS_SELECTOR, "h4.company-name").text
 
-                            try:
-                                salary = offer.find_element(
-                                    By.CSS_SELECTOR,
-                                    "span[data-cy='salary ranges on the job offer listing'].posting-tag").text
-                                if salary == 'Sprawdź wynagrodzenie':
-                                    salary = '-'
-                            except:
+                        title = offer.find_element(By.CSS_SELECTOR, "h3.posting-title__position").text
+                        company = offer.find_element(By.CSS_SELECTOR, "h4.company-name").text
+
+                        try:
+                            salary = offer.find_element(
+                                By.CSS_SELECTOR,
+                                "span[data-cy='salary ranges on the job offer listing'].posting-tag").text
+                            if salary == 'Sprawdź wynagrodzenie':
                                 salary = '-'
+                        except:
+                            salary = '-'
 
-                            location = offer.find_element(
-                                By.CSS_SELECTOR,
-                                "nfj-posting-item-city[data-cy='location on the job offer listing'] span.tw-text-ellipsis").text
+                        location = offer.find_element(
+                            By.CSS_SELECTOR,
+                            "nfj-posting-item-city[data-cy='location on the job offer listing'] span.tw-text-ellipsis").text
 
-                            technologies = [tech.text.strip() for tech in offer.find_elements(
-                                By.CSS_SELECTOR,
-                                "span[data-cy='category name on the job offer listing'].posting-tag")]
+                        technologies = [tech.text.strip() for tech in offer.find_elements(
+                            By.CSS_SELECTOR,
+                            "span[data-cy='category name on the job offer listing'].posting-tag")]
 
-                            cleaned_title = title.replace("NOWA", "").strip() if title.endswith("NOWA") else title
+                        cleaned_title = title.replace("NOWA", "").strip() if title.endswith("NOWA") else title
 
-                            self.all_offers.append({
-                                'seniority': seniority,
-                                "url": offer_url,
-                                "title": cleaned_title,
-                                "company": company,
-                                "salary": salary,
-                                "location": location,
-                                "technologies": technologies,
-                            })
+                        offer = ({
+                            'seniority': seniority,
+                            "url": offer_url,
+                            "title": cleaned_title,
+                            "company": company,
+                            "salary": salary,
+                            "location": location,
+                            "technologies": technologies,
+                        })
+
+                        self.env.manager.add_offer(offer, seniority.lower())
                     except:
                         continue
         finally:
             pass
-        return self.all_offers

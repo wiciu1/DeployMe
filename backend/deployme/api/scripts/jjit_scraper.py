@@ -1,8 +1,9 @@
 from base_scraper import *
 
 class JJITScraper(BaseScraper):
-    all_offers = []
-    seen_urls = set()
+    def __init__(self, env):
+        super().__init__(env)
+        self.__url = "https://justjoin.it/job-offers/all-locations?"
 
     def scrape(self, seniority="junior", scrape_iterations=1):
         seniority_map = {
@@ -10,7 +11,7 @@ class JJITScraper(BaseScraper):
             'trainee': 'employment-type=internship',
         }
         normalised_seniority = seniority_map.get(seniority, seniority)
-        url = f'https://justjoin.it/job-offers/all-locations?{normalised_seniority}&orderBy=DESC&sortBy=published'
+        url = self.__url + f'{normalised_seniority}&orderBy=DESC&sortBy=published'
 
         try:
             self.driver.get(url)
@@ -36,35 +37,35 @@ class JJITScraper(BaseScraper):
                     for offer in offers:
 
                         offer_url = offer.get_attribute('href')
-                        if offer_url not in self.seen_urls:
-                            self.seen_urls.add(offer_url)
-                            title = offer.find_element(By.TAG_NAME, 'h3').text
-                            location = offer.find_element(By.CSS_SELECTOR, 'span.css-1o4wo1x').text
-                            salaries = offer.find_elements(By.CSS_SELECTOR, 'div.css-18ypp16 span')
-                            if len(salaries) >= 3:
-                                salary_min = salaries[0].text
-                                salary_max = salaries[1].text
-                                currency = salaries[2].text
-                                salary = f'{salary_min} - {salary_max} {currency}'
-                            else:
-                                salary = "Not specified"
-                            skill_elements = offer.find_elements(By.CSS_SELECTOR,
-                                                                 'div.MuiBox-root.css-vzlxkq div.css-jikuwi')
+                        title = offer.find_element(By.TAG_NAME, 'h3').text
+                        location = offer.find_element(By.CSS_SELECTOR, 'span.css-1o4wo1x').text
+                        salaries = offer.find_elements(By.CSS_SELECTOR, 'div.css-18ypp16 span')
+                        if len(salaries) >= 3:
+                            salary_min = salaries[0].text
+                            salary_max = salaries[1].text
+                            currency = salaries[2].text
+                            salary = f'{salary_min} - {salary_max} {currency}'
+                        else:
+                            salary = "Not specified"
+                        skill_elements = offer.find_elements(By.CSS_SELECTOR,
+                                                             'div.MuiBox-root.css-vzlxkq div.css-jikuwi')
 
-                            skills = [skill.text for skill in skill_elements]
+                        skills = [skill.text for skill in skill_elements]
 
-                            self.all_offers.append({
-                                'url': offer_url,
-                                'title': title,
-                                'company': '?',
-                                'location': location,
-                                'salary': salary,
-                                'technologies': skills,
-                            })
+                        offer = ({
+                            'seniority': seniority,
+                            'url': offer_url,
+                            'title': title,
+                            'company': '?',
+                            'location': location,
+                            'salary': salary,
+                            'technologies': skills,
+                        })
+
+                        self.env.manager.add_offer(offer, seniority.lower())
 
             except Exception as e:
                 print(f"[Error] during parsing data: {str(e)}")
 
         finally:
             pass
-        return self.all_offers
