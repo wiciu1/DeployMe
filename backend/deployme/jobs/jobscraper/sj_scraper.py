@@ -1,4 +1,4 @@
-from base_scraper import *
+from .base_scraper import *
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 

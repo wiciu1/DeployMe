@@ -1,5 +1,5 @@
 from selenium import webdriver
-from backend.deployme.api.scripts.scraping_manager import ScrapingManager
+from .scraping_manager import ScrapingManager
 
 class ScrapingEnv:
     def __init__(self, headless=True):

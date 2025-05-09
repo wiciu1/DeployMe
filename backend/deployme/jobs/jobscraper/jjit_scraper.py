@@ -1,4 +1,4 @@
-from base_scraper import *
+from .base_scraper import *
 
 class JJITScraper(BaseScraper):
     def __init__(self, env):

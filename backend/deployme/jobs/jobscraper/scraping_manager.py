@@ -1,6 +1,6 @@
-from backend.deployme.api.scripts.jjit_scraper import JJITScraper
-from backend.deployme.api.scripts.nfj_scraper import NFJScraper
-from backend.deployme.api.scripts.sj_scraper import SJScraper
+from .jjit_scraper import JJITScraper
+from .nfj_scraper import NFJScraper
+from .sj_scraper import SJScraper
 
 
 class ScrapingManager:
