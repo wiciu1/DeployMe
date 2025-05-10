@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from jobs.models import JobOffer
 
-class JobOfferSerializer(serializers.ModelSerializers):
+class JobOfferSerializer(serializers.ModelSerializer):
     class Meta:
-        job_offer = JobOffer
+        model = JobOffer
         fields = "__all__"

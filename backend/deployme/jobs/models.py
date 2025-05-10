@@ -7,9 +7,9 @@ class JobOffer(models.Model):
     company = models.CharField(max_length=255)
     location = models.CharField(max_length=100)
     salary = models.CharField(max_length=100)
-    technologies = models.CharField(max_length=255)
+    technologies = models.TextField()
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
 
