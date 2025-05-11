@@ -1,6 +1,6 @@
-from jobs.jobscraper.scraping_manager import ScrapingManager
-from jobs.jobscraper.scraping_env import ScrapingEnv
-from jobs.models import JobOffer
+from .jobscraper.scraping_manager import ScrapingManager
+from .jobscraper.scraping_env import ScrapingEnv
+from .models import JobOffer
 
 
 # Scraping Script

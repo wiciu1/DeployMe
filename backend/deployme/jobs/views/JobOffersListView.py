@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from jobs.models import JobOffer
+from ..models import JobOffer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
