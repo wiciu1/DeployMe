@@ -1,17 +1,23 @@
-from django.views import View
-from django.http import JsonResponse
-from jobs.models import JobOffer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from ..services import run_scraping_and_save_to_db
 
+class RunScrapingView(APIView):
+    permission_classes = [IsAdminUser]
 
-# Activate scraping script
-class RunScrapingView(View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         try:
             # saves to DB
             offers = run_scraping_and_save_to_db()
-            return JsonResponse({'status': 'success', 'offers_saved': len(offers)})
+            return Response ({
+                'status': 'success',
+                'offers_saved': len(offers)
+            })
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            return Response ({
+                'status': 'error',
+                'message': str(e)
+            }, status=500)
 
