@@ -5,5 +5,7 @@ class JobOfferFilter(django_filters.FilterSet):
     class Meta:
         model = JobOffer
         fields = {
-
+            'seniority': ['exact'],
+            'location': ['exact'],
+            'salary': ['lt', 'gt'],
         }

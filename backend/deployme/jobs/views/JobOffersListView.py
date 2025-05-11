@@ -1,18 +1,15 @@
 from django.http import JsonResponse
+
+from ..filters import JobOfferFilter
 from ..models import JobOffer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import generics
 from ..serializers.job_offer_serializer import JobOfferSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 
-
-class JobOffersListView(APIView):
-    permission_classes = (IsAuthenticated,)
-    def get(self, request):
-        offers = JobOffer.objects.all().order_by('url')
-
-        serializer = JobOfferSerializer(offers, many=True)
-        response = JsonResponse(serializer.data, safe=False)
-        # For Polish Signs
-        response['Content-Type'] = 'application/json; charset=utf-8'
-        return response
+class JobOffersListView(generics.ListAPIView):
+    permission_classes = (AllowAny,)
+    queryset = JobOffer.objects.all()
+    serializer_class = JobOfferSerializer
+    filterset_class = JobOfferFilter
+    filter_backends = [DjangoFilterBackend]
