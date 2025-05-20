@@ -3,7 +3,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from './constants.js'
 
 // Configure custom api fetcher. Link base url
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: "http://127.0.0.1:8000/"
 })
 
 // Add a request interceptor

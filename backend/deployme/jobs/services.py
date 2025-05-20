@@ -4,11 +4,11 @@ from .models import JobOffer
 
 
 # Scraping Script
-def run_scraping_and_save_to_db():
+def run_scraping_and_save_to_db(scrape_iterations=1):
     env = ScrapingEnv()
     manager = ScrapingManager(env)
     env.set_manager(manager=manager)
-    manager.scrape_all()
+    manager.scrape_all(scrape_iterations=scrape_iterations)
     env.quit()
 
 

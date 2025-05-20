@@ -1,0 +1,38 @@
+body {
+    background-color: rgba(12, 12, 12, 0.85);
+    color: white;
+}
+.btn-primary {
+  background-color: #17994c;
+  border-color: #17994c;
+}
+
+.btn-primary:hover {
+    background-color: rgba(23, 153, 76, 0.9);
+    border-color: rgba(23, 153, 76, 0.9);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px;
+  border-radius: 8px;
+}
+
+.form-control {
+  border-radius: 10px;
+}
+
+.form-header {
+    color: #17994c;
+}
+
+.form-container {
+    background-color: rgba(59, 59, 59, 0.85);
+}
+
+.anchor {
+    text-decoration: none;
+    color: #17994c;
+}

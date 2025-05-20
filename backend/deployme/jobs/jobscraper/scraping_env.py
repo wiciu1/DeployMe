@@ -2,7 +2,7 @@ from selenium import webdriver
 from .scraping_manager import ScrapingManager
 
 class ScrapingEnv:
-    def __init__(self, headless=True):
+    def __init__(self, headless=False):
         self.options = webdriver.ChromeOptions()
         if headless:
             self.options.add_argument("--headless")
