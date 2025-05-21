@@ -6,6 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import NotFound from "./components/NotFound.jsx";
 import { ToastContainer } from "react-toastify";
+import JobOfferCard from "./components/JobOfferCard/JobOfferCard.jsx";
 
 
 function Logout() {
@@ -23,7 +24,7 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <Home />
+              <Home/>
             </ProtectedRoute>
           }
         />
