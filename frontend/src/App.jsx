@@ -6,8 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import NotFound from "./components/NotFound.jsx";
 import { ToastContainer } from "react-toastify";
-import JobOfferCard from "./components/JobOfferCard/JobOfferCard.jsx";
-
+import Header from './components/Header/Header.jsx';
 
 function Logout() {
   localStorage.removeItem(ACCESS_TOKEN);
@@ -18,23 +17,26 @@ function Logout() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Home/>
-            </ProtectedRoute>
-          }
-        />
-            <Route path="/login" element= {<Login />} />
+      <div className="App">
+          <BrowserRouter>
+          <Header />
+          <Routes>
+            <Route
+              path="/" element={
+                <ProtectedRoute>
+                  <Home/>
+                </ProtectedRoute>
+              }
+            />
+                <Route path="/login" element= {<Login />} />
             <Route path="/logout" element={ <Logout />} />
             <Route path="/register" element={ <Register />} />
             <Route path="*" element={ <NotFound/> } />
       </Routes>
       <ToastContainer position="top-center"/>
     </BrowserRouter>
+      </div>
+
   )
 }
 
