@@ -7,7 +7,15 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const toggleMenu = () => setIsOpen(!isOpen);
-  const closeMenu = () => setIsOpen(false);
+  const closeMenu = () => {
+      setIsOpen(false);
+      window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  const activeLinkStyle = {
+      color: '#17994c',
+      fontWeight: "bold",
+  };
   const {isAuthenticated} = useAuth();
 
     if (isAuthenticated === null) {
@@ -37,13 +45,13 @@ const Header = () => {
           {isAuthenticated && (
           <ul className="navbar-nav gap-2">
             <li className="nav-item">
-              <Link className="nav-link" to="/" onClick={closeMenu}>Home</Link>
+              <Link className="nav-link" to="/" onClick={closeMenu} style={location.pathname === '/' ? activeLinkStyle : {}}>Home</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/template2" onClick={closeMenu}>Statistics</Link>
+              <Link className="nav-link" to="/template2" onClick={closeMenu} style={location.pathname === '/stats' ? activeLinkStyle : {}}>Statistics</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/template3" onClick={closeMenu}>template</Link>
+              <Link className="nav-link" to="/template3" onClick={closeMenu} style={location.pathname === '/template' ? activeLinkStyle : {}}>template</Link>
             </li>
           </ul>
         )}

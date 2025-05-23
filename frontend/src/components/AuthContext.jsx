@@ -62,11 +62,17 @@ export const AuthProvider = ({ children }) => {
             checkAuth();
         }, []);
 
+        const logout = () => {
+          localStorage.removeItem(ACCESS_TOKEN);
+          localStorage.removeItem(REFRESH_TOKEN);
+          setIsAuthenticated(false);
+        };
+
         return (
-            <AuthContext.Provider
-                value = {{ isAuthenticated, setIsAuthenticated, checkAuth}}
+        <AuthContext.Provider
+            value={{ isAuthenticated, setIsAuthenticated, checkAuth, logout }}
             >
-                { children }
-            </AuthContext.Provider>
+            {children}
+        </AuthContext.Provider>
         );
 }

@@ -3,6 +3,7 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import { toast } from "react-toastify";
+import { useAuth } from "../AuthContext.jsx";
 
 import "./Form.css";
 
@@ -13,6 +14,8 @@ function Form({ route, method }) {
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
+
+  const {setIsAuthenticated} = useAuth();
 
   const name = method === "login" ? "Login" : "Register";
 
@@ -32,6 +35,7 @@ function Form({ route, method }) {
       if (method === "login") {
         localStorage.setItem(ACCESS_TOKEN, response.data.access);
         localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+        setIsAuthenticated(true);
         navigate("/");
         toast.success("Successfully logged in.")
       } else if(method === "register"){
