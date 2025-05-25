@@ -56,7 +56,7 @@ class JJITScraper(BaseScraper):
                             'seniority': seniority,
                             'url': offer_url,
                             'title': title,
-                            'company': '?',
+                            'company': '-',
                             'location': location,
                             'salary': salary,
                             'technologies': skills,
