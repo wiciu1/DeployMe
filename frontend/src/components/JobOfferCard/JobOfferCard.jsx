@@ -1,8 +1,7 @@
 
 import "./JobOfferCard.css"
 
-function JobOfferCard({ title, url, company_name, location, seniority, salary, technologies }) {
-    const cleanTechnologies = technologies.replace(/\[|\]|'/g, "").split(', ').map(item => item.trim());
+function JobOfferCard({ title, url, company_name, location, seniority, salary, technologies, portal }) {
     return (
         <div className="card mb-4 shadow-sm border-0 custom-bg p-3">
             <div className="card-body">
@@ -26,12 +25,14 @@ function JobOfferCard({ title, url, company_name, location, seniority, salary, t
                 <div className="d-flex mb-3 gap-2 flex-wrap">
                     <span className="badge bg-secondary"><i className="bi bi-geo-alt"></i> {location}</span>
                     <span className="badge bg-secondary">{seniority}</span>
+                    <span className="badge bg-secondary">{portal}</span>
                 </div>
 
                 <div className="d-flex justify-content-end flex-wrap gap-2">
-                    {cleanTechnologies.map((tech, index) => (
-                     <span key={index} className="badge bg-light text-dark border">{tech}</span>
-                    ))}
+                    {technologies.map((tech, index) => (
+  <span key={index} className="badge bg-light text-dark border">{tech.name}</span>
+))}
+
                 </div>
 
             </div>

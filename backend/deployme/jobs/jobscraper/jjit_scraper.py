@@ -1,71 +1,51 @@
+from django.db import transaction
+
 from .base_scraper import *
+from ..models import Technology, JobOffer
+
 
 class JJITScraper(BaseScraper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.__url = "https://justjoin.it/job-offers/all-locations?"
+    BASE_URL = "https://justjoin.it/job-offers/all-locations?"
 
-    def scrape(self, seniority="junior", scrape_iterations=1):
+    def get_scrape_url(self, seniority):
         seniority_map = {
             'junior': 'experience-level=junior',
             'trainee': 'employment-type=internship',
         }
-        normalised_seniority = seniority_map.get(seniority, seniority)
-        url = self.__url + f'{normalised_seniority}&orderBy=DESC&sortBy=published'
+        params = seniority_map.get(seniority, '')
+        return f'{self.BASE_URL}{params}&orderBy=DESC&sortBy=published'
 
-        try:
-            self.driver.get(url)
+    def get_portal_name(self):
+        return 'JustJoinIT'
 
-            try:
-                cookie_accept = WebDriverWait(self.driver, 5).until(
-                    EC.element_to_be_clickable((By.ID, "cookiescript_accept")))
-                cookie_accept.click()
-                time.sleep(3)
-            except Exception as e:
-                print(f"[ERROR] Cookie Accept did not work: {e}")
+    def _load_more_offers(self):
+        self.accept_cookies("cookiescript_accept")
+        time.sleep(3)
+        self.scroll_page(pixels=2000)
+        time.sleep(2)
 
-            try:
-                last_height = self.driver.execute_script("return document.body.scrollHeight")
-                offers_container = self.driver.find_element(By.CSS_SELECTOR, '[data-test-id="virtuoso-item-list"]')
+    def _find_offer_elements(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, 'a.offer-card')
 
-                for _ in range(scrape_iterations):
-                    self.scroll_page(None, 200)
-                    time.sleep(3)
+    def extract_offer_data(self, offer_element):
+        offer_url = offer_element.get_attribute('href')
+        title = offer_element.find_element(By.TAG_NAME, 'h3').text
+        location = offer_element.find_element(By.CSS_SELECTOR, 'span.css-1o4wo1x').text
+        salaries = offer_element.find_elements(By.CSS_SELECTOR, 'div.css-18ypp16 span')
 
-                    offers = offers_container.find_elements(By.CSS_SELECTOR, 'a.offer-card')
+        if len(salaries) >= 3:
+            salary = f'{salaries[0].text} - {salaries[1].text} {salaries[2].text}'
+        else:
+            salary = "undefined"
 
-                    for offer in offers:
+        skills = offer_element.find_elements(By.CSS_SELECTOR, 'div.MuiBox-root.css-vzlxkq div.css-jikuwi')
+        technologies = [skill.text.strip() for skill in skills if skill.text.strip()]
 
-                        offer_url = offer.get_attribute('href')
-                        title = offer.find_element(By.TAG_NAME, 'h3').text
-                        location = offer.find_element(By.CSS_SELECTOR, 'span.css-1o4wo1x').text
-                        salaries = offer.find_elements(By.CSS_SELECTOR, 'div.css-18ypp16 span')
-                        if len(salaries) >= 3:
-                            salary_min = salaries[0].text
-                            salary_max = salaries[1].text
-                            currency = salaries[2].text
-                            salary = f'{salary_min} - {salary_max} {currency}'
-                        else:
-                            salary = "Not specified"
-                        skill_elements = offer.find_elements(By.CSS_SELECTOR,
-                                                             'div.MuiBox-root.css-vzlxkq div.css-jikuwi')
-
-                        skills = [skill.text for skill in skill_elements]
-
-                        offer = ({
-                            'seniority': seniority,
-                            'url': offer_url,
-                            'title': title,
-                            'company': '-',
-                            'location': location,
-                            'salary': salary,
-                            'technologies': skills,
-                        })
-
-                        self.env.manager.add_offer(offer, seniority.lower())
-
-            except Exception as e:
-                print(f"[Error] during parsing data: {str(e)}")
-
-        finally:
-            pass
+        return {
+            'url': offer_url,
+            'title': title,
+            'location': location,
+            'salary': salary,
+            'portal': self.get_portal_name(),
+            'technologies': technologies
+        }

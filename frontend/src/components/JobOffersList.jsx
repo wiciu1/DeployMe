@@ -79,6 +79,7 @@ function JobOffersList({filters}) {
                     seniority={offer.seniority}
                     salary={offer.salary}
                     technologies={offer.technologies}
+                    portal={offer.portal}
                 />
             ))}
             <Pagination

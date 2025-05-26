@@ -15,7 +15,7 @@ class JobOffersPagination(PageNumberPagination):
 
 class JobOffersListView(generics.ListAPIView):
     permission_classes = (AllowAny,)
-    queryset = JobOffer.objects.all()
+    queryset = JobOffer.objects.all().order_by('-created_at')
     serializer_class = JobOfferSerializer
     filterset_class = JobOfferFilter
     filter_backends = [DjangoFilterBackend]

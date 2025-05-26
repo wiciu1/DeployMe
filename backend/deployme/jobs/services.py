@@ -1,32 +1,46 @@
+import logging
 from .jobscraper.scraping_manager import ScrapingManager
 from .jobscraper.scraping_env import ScrapingEnv
-from .models import JobOffer
+
+logger = logging.getLogger(__name__)
 
 
-# Scraping Script
-def run_scraping_and_save_to_db(scrape_iterations=1):
-    env = ScrapingEnv()
-    manager = ScrapingManager(env)
-    env.set_manager(manager=manager)
-    manager.scrape_all(scrape_iterations=scrape_iterations)
-    env.quit()
+def run_scraping_and_save_to_db(seniority, scrape_iterations=1):
+    """
+    Run scraping process and save results to database.
 
+    Args:
+        seniority (str): 'junior' or 'trainee'
+        scrape_iterations (int): Number of times to load more offers
 
-    for offer_data in manager.all_offers:
-        try:
-            JobOffer.objects.get_or_create(
-                # URL as ID
-                url = offer_data['url'],
-                defaults = {
-                    'title': offer_data['title'],
-                    'seniority': offer_data['seniority'],
-                    'company': offer_data['company'],
-                    'location': offer_data['location'],
-                    'salary': offer_data['salary'],
-                    'technologies': offer_data['technologies'],
-                }
-            )
-        except Exception as e:
-            print(e)
+    Returns:
+        dict: Results with status and statistics
+    """
+    env = None
+    try:
+        env = ScrapingEnv(headless=False)  # Run in headless mode for production
+        manager = ScrapingManager(env)
 
-    return manager.all_offers
+        # Run scraping process
+        stats = manager.scrape_all(seniority=seniority, scrape_iterations=scrape_iterations)
+
+        logger.info(f"Scraping completed for {seniority} positions")
+
+        return {
+            'status': 'success',
+            'stats': dict(stats),
+            'seniority': seniority,
+            'iterations': scrape_iterations
+        }
+
+    except Exception as e:
+        logger.error(f"Scraping failed: {str(e)}", exc_info=True)
+        return {
+            'status': 'error',
+            'error': str(e),
+            'seniority': seniority
+        }
+
+    finally:
+        if env:
+            env.quit()

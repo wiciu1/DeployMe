@@ -1,80 +1,59 @@
+from django.db import transaction
+
 from .base_scraper import *
+from ..models import Technology, JobOffer
+
 
 class NFJScraper(BaseScraper):
-    def __init__(self, env):
-        super().__init__(env)
-        self.__url = f"https://nofluffjobs.com/pl/?criteria=seniority%3D"
+    BASE_URL = "https://nofluffjobs.com/pl/?criteria=seniority%3D"
 
-    def scrape(self, seniority='junior', scrape_iterations=1):
-        url = self.__url + seniority
+    def get_scrape_url(self, seniority):
+        return f"{self.BASE_URL}{seniority}"
+
+    def get_portal_name(self):
+        return 'NoFluffJobs'
+
+    def _load_more_offers(self):
         try:
-            self.driver.get(url)
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+            button = self.wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "button[nfjloadmore]")))
+            self.driver.execute_script("arguments[0].click();", button)
+            time.sleep(3)
+        except Exception as e:
+            logger.debug(f"Could not load more offers: {str(e)}")
 
-            # Accept cookies if they appear
-            try:
-                cookie_accept = WebDriverWait(self.driver, 5).until(
-                    EC.element_to_be_clickable((By.ID, "usercentrics-cmp-ui")))
-                cookie_accept.find_element(By.CSS_SELECTOR, "button[data-testid='uc-accept-all-button']").click()
-                time.sleep(1)
-            except:
-                pass
+    def _find_offer_elements(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, "a.posting-list-item")
 
-            for _ in range(scrape_iterations):
-                # Load more offers
-                for _ in range(3):
-                    try:
-                        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                        time.sleep(2)
-                        button = WebDriverWait(self.driver, 10).until(
-                            EC.presence_of_element_located((By.CSS_SELECTOR, "button[nfjloadmore]")))
-                        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
-                        time.sleep(1)
-                        self.driver.execute_script("arguments[0].click();", button)
-                        time.sleep(3)
-                        break
-                    except Exception as e:
-                        time.sleep(2)
+    def extract_offer_data(self, offer_element):
+        offer_url = offer_element.get_attribute("href")
+        title = offer_element.find_element(By.CSS_SELECTOR, "h3.posting-title__position").text
+        company = offer_element.find_element(By.CSS_SELECTOR, "h4.company-name").text
 
-                # Scrape offers
-                offers = self.driver.find_elements(By.CSS_SELECTOR, "a.posting-list-item")
-                for offer in offers:
-                    try:
-                        offer_url = offer.get_attribute("href")
+        try:
+            salary = offer_element.find_element(
+                By.CSS_SELECTOR,
+                "span[data-cy='salary ranges on the job offer listing'].posting-tag").text
+            salary = 'undefined' if salary == 'Sprawdź wynagrodzenie' else salary
+        except:
+            salary = 'undefined'
 
-                        title = offer.find_element(By.CSS_SELECTOR, "h3.posting-title__position").text
-                        company = offer.find_element(By.CSS_SELECTOR, "h4.company-name").text
+        location = offer_element.find_element(
+            By.CSS_SELECTOR,
+            "nfj-posting-item-city[data-cy='location on the job offer listing'] span.tw-text-ellipsis").text
 
-                        try:
-                            salary = offer.find_element(
-                                By.CSS_SELECTOR,
-                                "span[data-cy='salary ranges on the job offer listing'].posting-tag").text
-                            if salary == 'Sprawdź wynagrodzenie':
-                                salary = '-'
-                        except:
-                            salary = '-'
+        technologies = [tech.text.strip() for tech in offer_element.find_elements(
+            By.CSS_SELECTOR,
+            "span[data-cy='category name on the job offer listing'].posting-tag")]
 
-                        location = offer.find_element(
-                            By.CSS_SELECTOR,
-                            "nfj-posting-item-city[data-cy='location on the job offer listing'] span.tw-text-ellipsis").text
-
-                        technologies = [tech.text.strip() for tech in offer.find_elements(
-                            By.CSS_SELECTOR,
-                            "span[data-cy='category name on the job offer listing'].posting-tag")]
-
-                        cleaned_title = title.replace("NOWA", "").strip() if title.endswith("NOWA") else title
-
-                        offer = ({
-                            'seniority': seniority,
-                            "url": offer_url,
-                            "title": cleaned_title,
-                            "company": company,
-                            "salary": salary,
-                            "location": location,
-                            "technologies": technologies,
-                        })
-
-                        self.env.manager.add_offer(offer, seniority.lower())
-                    except:
-                        continue
-        finally:
-            pass
+        return {
+            'url': offer_url,
+            'title': title.replace("NOWA", "").strip(),
+            'company': company,
+            'location': location,
+            'salary': salary,
+            'portal': self.get_portal_name(),
+            'technologies': technologies
+        }
