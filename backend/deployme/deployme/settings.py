@@ -1,6 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
 import os
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -179,3 +181,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BEAT_SCHEDULE = {
+    'scrape-daily': {
+        'task': 'jobs.tasks.run_daily_scraping_task',
+        'schedule': crontab(hour=3, minute=0),
+    },
+    'cleanup-weekly': {
+        'task': 'jobs.tasks.cleanup_old_offers_task',
+        'schedule': crontab(day_of_week=1, hour=4),
+    },
+}

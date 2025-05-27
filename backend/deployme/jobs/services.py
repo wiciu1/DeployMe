@@ -1,6 +1,9 @@
 import logging
+from datetime import timezone, timedelta
+
 from .jobscraper.scraping_manager import ScrapingManager
 from .jobscraper.scraping_env import ScrapingEnv
+from .models import JobOffer
 
 logger = logging.getLogger(__name__)
 
@@ -44,3 +47,16 @@ def run_scraping_and_save_to_db(seniority, scrape_iterations=1):
     finally:
         if env:
             env.quit()
+
+
+def cleanup_old_offers(days=30):
+    try:
+        cutoff_date = timezone.now() - timedelta(days=days)
+
+        old_offers = JobOffer.objects.filter(created_at__lt=cutoff_date)
+
+        deleted, _ = old_offers.delete()
+        logger.info(f"Deleted {deleted} job offers older than {days} days.")
+        return
+    except Exception as e:
+        logger.error(f'Failed to delete old offers: {str(e)}', exc_info=True)
