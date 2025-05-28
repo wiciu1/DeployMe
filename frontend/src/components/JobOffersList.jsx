@@ -74,12 +74,13 @@ function JobOffersList({filters}) {
                     key={offer.id}
                     url={offer.url}
                     title={offer.title}
-                    company_name={offer.company}
+                    company_name={(offer.company === 'undefined') ? '' : offer.company}
                     location={offer.location}
                     seniority={offer.seniority}
-                    salary={offer.salary}
+                    salary={(offer.salary === 'undefined') ? '' : offer.salary}
                     technologies={offer.technologies}
                     portal={offer.portal}
+                    created_at={offer.created_at}
                 />
             ))}
             <Pagination

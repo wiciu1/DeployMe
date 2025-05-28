@@ -15,3 +15,12 @@ a:hover {
 h6 {
     color: white !important;
 }
+
+.custom-subtitle {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-right: 10px;
+}
+.bg-primary{
+    background-color: #17994c !important;
+}

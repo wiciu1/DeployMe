@@ -35,6 +35,7 @@ function Filters({onFilterChange}) {
             ...(formData.salary_max && { salary_max: formData.salary_max }),
             ...(formData.seniority.length > 0 && { seniority: formData.seniority.join(',') }),
             ...(formData.location && { location: formData.location }),
+            ...(formData.portal && { portal: formData.portal }),
             ...(formData.technologies.length > 0 && { technologies: formData.technologies.join(',') })
         };
         onFilterChange(filters);
@@ -45,7 +46,8 @@ function Filters({onFilterChange}) {
             salary: '',
             seniority: [],
             location: "",
-            technologies: []
+            technologies: [],
+            portal: ""
         });
         onFilterChange({});
     };
@@ -95,7 +97,7 @@ function Filters({onFilterChange}) {
                             onChange={handleChange}
                         >
                             <option value="">All</option>
-                            <option value="remote">Remote</option>
+                            <option value="zdalnie">Remote</option>
                             <option value="warszawa">Warszawa</option>
                             <option value="krakow">Kraków</option>
                             <option value="wroclaw">Wrocław</option>
@@ -120,6 +122,22 @@ function Filters({onFilterChange}) {
                             <option value="c">C</option>
                             <option value="html">HTML</option>
                             <option value="php">PHP</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3">
+                        <label htmlFor="portal" className="form-label">Portal</label>
+                        <select
+                            className="form-select"
+                            id="portal"
+                            name="portal"
+                            value={formData.portal}
+                            onChange={handleChange}
+                        >
+                            <option value="">All</option>
+                            <option value="NoFluffJobs">NoFluffJobs</option>
+                            <option value="JustJoinIT">JustJoinIT</option>
+                            <option value="SolidJobs">SolidJobs</option>
                         </select>
                     </div>
 
